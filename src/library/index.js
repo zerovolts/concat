@@ -4,11 +4,6 @@ const SymbolTable = require('../symbol-table')
 
 const builtins = new SymbolTable()
 
-/* template
-builtins.set(name, Primitive.Function(stack => {
-}))
-*/
-
 function realInt(...numbers) {
   if (numbers.every(number => number.type == PrimitiveType.Integer)) {
     return Primitive.Integer
@@ -64,14 +59,39 @@ builtins.set('print', Primitive.Function(stack => {
 
 // String //
 
-builtins.set('toUpper', Primitive.Function(stack => {
+builtins.set('to-upper', Primitive.Function(stack => {
   let a = stack.pop()
   stack.push(Primitive.String(a.value.toUpperCase()))
 }))
 
-builtins.set('strGet', Primitive.Function(stack => {
+builtins.set('str-get', Primitive.Function(stack => {
   let [str, index] = stack.pop(2)
   stack.push(Primitive.String(str.value[index.value]))
+}))
+
+// List/Quoted Program //
+
+builtins.set('get', Primitive.Function(stack => {
+  let [list, index] = stack.pop(2)
+  stack.push(list.value[index.value])
+}))
+
+builtins.set('push', Primitive.Function(stack => {
+  let [list, val] = stack.pop(2)
+  list.value.push(val)
+  stack.push(Primitive.List(list.value))
+}))
+
+builtins.set('len', Primitive.Function(stack => {
+  let list = stack.pop()
+  stack.push(Primitive.Integer(list.value.length))
+}))
+
+// Object //
+
+builtins.set('get-key', Primitive.Function(stack => {
+  let [obj, key] = stack.pop(2)
+  stack.push(obj.get(key))
 }))
 
 // ------

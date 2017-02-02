@@ -1,15 +1,15 @@
 const Primitive = require('./primitive')
+const PrimitiveType = require('./primitive-type')
 const library = require('./library')
 
 class Parser {
   constructor() {
     // unable to have spaces in strings with this
-    this.splitter = /\s|(\[|\])/
+    this.splitter = /\s|([\[\]\{\}])/
     this.tokenMatchers = [{
-        type: 'identifier',
+        type: 'symbol',
         regex: /^[A-Za-z\-\+\!\?\*\>\<][\w\-\+\!\?\*\>\<]*$/,
-        // should return a Symbol/Identifier object, and look up at runtime, perhaps?
-        fn: result => library.get(result[0])
+        fn: result => Primitive.Symbol(String(result[0]))
       }, {
         type: 'integer',
         regex: /^\d+$/,
@@ -20,9 +20,9 @@ class Parser {
         fn: result => Primitive.Real(Number(result[0]))
       }, {
         type: 'ratio',
-        regex: /^\d+\/d+$/,
+        regex: /^\d+\/\d+$/,
         fn: result => {
-          let [a, b] = result[0].split('/').map(Number(result[0]))
+          let [a, b] = result[0].split('/').map(x => Number(x))
           return Primitive.Ratio(a, b)
         }
       }, {
@@ -39,6 +39,11 @@ class Parser {
 
   tokenize(lexemes) {
     return lexemes.map(lexeme => {
+      if (lexeme == '[') {return {type: 'left-bracket', value: '['}}
+      if (lexeme == ']') {return {type: 'right-bracket', value: ']'}}
+      if (lexeme == '{') {return {type: 'left-brace', value: '{'}}
+      if (lexeme == '}') {return {type: 'right-brace', value: '}'}}
+
       for (let i = 0, n = this.tokenMatchers.length; i < n; i++) {
         let matcher = this.tokenMatchers[i]
         let result = lexeme.match(matcher.regex)
@@ -50,9 +55,42 @@ class Parser {
       throw new Error('Lexeme [' + lexeme + '] could not be parsed')
     })
   }
+  
+  parseStructures(tokens, type) {
+    const nodes = []
+
+    while (tokens.length > 0) {
+      const token = tokens.shift()
+
+      switch (token.type) {
+        case 'left-bracket':
+          nodes.push(this.parseStructures(tokens, PrimitiveType.List))
+          break
+        case 'left-brace':
+          nodes.push(this.parseStructures(tokens, PrimitiveType.Object))
+          break
+        case 'right-bracket':
+          if (type == PrimitiveType.List) {
+            return Primitive.List(nodes)
+          } else {
+            throw Error('Mismatched brackets')
+          }
+        case 'right-brace':
+          if (type == PrimitiveType.Object) {
+            return new Primitive.Object(nodes)
+          } else {
+            throw Error('Mismatched braces')
+          }
+        default:
+          nodes.push(token)
+          break
+      }
+    }
+    return nodes
+  }
 
   parse(str) {
-    return this.tokenize(this.lex(str))
+    return this.parseStructures(this.tokenize(this.lex(str)))
   }
 }
 

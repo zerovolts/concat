@@ -1,6 +1,7 @@
 const Parser = require('./parser')
 const PrimitiveType = require('./primitive-type')
 const Stack = require('./stack')
+const library = require('./library')
 
 class Interpreter {
   constructor(options = {}) {
@@ -18,6 +19,11 @@ class Interpreter {
     this.program = this.parser.parse(this.source)
   }
 
+  run() {
+    while(this.next()) {}
+    return this.stack.items
+  }
+
   next() {
     if (this.programCounter < this.program.length) {
       //console.log(this.program[this.programCounter])
@@ -27,12 +33,11 @@ class Interpreter {
     }
   }
 
-  run() {
-    while(this.next()) {}
-    return this.stack.items
-  }
-
   read(token) {
+    if (token.type == PrimitiveType.Symbol) {
+      token = library.get(token.value)
+    }
+
     if (token.type == PrimitiveType.Function) {
       //let args = this.stack.pop(token.arity)
       token.fn(this.stack)

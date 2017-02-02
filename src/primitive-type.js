@@ -4,7 +4,9 @@ const PrimitiveType = Object.freeze({
   Real: 'real',
   Ratio: 'ratio',
   String: 'string',
-  Symbol: 'symbol'
+  Symbol: 'symbol',
+  List: 'list',
+  Object: 'object'
 })
 
 module.exports = PrimitiveType

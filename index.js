@@ -1,16 +1,10 @@
 const Interpreter = require('./src')
+const Primitive = require('./src/primitive')
 
-const tests = [
-  '2 3 + 5 *', // basic operations
-  '[+ *] ', // anonymous functions
-  '(def a [+ 5 *])'
+const fns = [
+  'rand 100 * floor', // random integer from 0 to 99
+  'dup len rand * floor get' // list -> random element from list
 ]
 
-const transforms = [
-  '2 3 +',
-  [{type: 'integer', value: 2}, {type: 'integer', value: 3}, {type: 'function', fn: 7}]
-]
-
-//let source = '5 3 + 7 8 * print drop print'
 let interp = new Interpreter({showStack: true, showTypes: false})
 interp.repl()
