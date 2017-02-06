@@ -5,11 +5,19 @@ const library = require('./library')
 class Parser {
   constructor() {
     // unable to have spaces in strings with this
-    this.splitter = /\s|([\[\]\{\}])/
+    this.splitter = /\s|([\[\]\{\}\.])/
     this.tokenMatchers = [{
-        type: 'symbol',
+        type: 'identifier',
         regex: /^[A-Za-z\-\+\!\?\*\>\<][\w\-\+\!\?\*\>\<]*$/,
-        fn: result => Primitive.Symbol(String(result[0]))
+        fn: result => Primitive.Identifier(String(result[0]))
+      }, {
+        type: 'symbol',
+        regex: /^\:([A-Za-z\-\+\!\?\*\>\<][\w\-\+\!\?\*\>\<]*)$/,
+        fn: result => Primitive.Symbol(String(result[1]))
+      },{
+        type: 'label',
+        regex: /^([A-Za-z\-\+\!\?\*\>\<][\w\-\+\!\?\*\>\<]*)\:$/,
+        fn: result => Primitive.Label(String(result[1]))
       }, {
         type: 'integer',
         regex: /^\d+$/,
@@ -55,7 +63,7 @@ class Parser {
       throw new Error('Lexeme [' + lexeme + '] could not be parsed')
     })
   }
-  
+
   parseStructures(tokens, type) {
     const nodes = []
 

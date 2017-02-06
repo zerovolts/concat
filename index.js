@@ -6,5 +6,15 @@ const fns = [
   'dup len rand * floor get' // list -> random element from list
 ]
 
-let interp = new Interpreter({showStack: true, showTypes: false})
-interp.repl()
+let interpreter = new Interpreter({showStack: true, showTypes: false})
+
+// ------ //
+
+switch (process.argv.length) {
+  case 2:
+    interpreter.repl()
+    break
+  case 3:
+    interpreter.file(process.argv[2])
+    break
+}

@@ -43,11 +43,27 @@ Primitive.String = function(s) {
   }
 }
 
-Primitive.Symbol = function(s) {
+Primitive.Identifier = function(sym) {
+  return {
+    type: PrimitiveType.Identifier,
+    value: sym,
+    string: sym.toString()
+  }
+}
+
+Primitive.Symbol = function(sym) {
   return {
     type: PrimitiveType.Symbol,
-    value: s,
-    string: s.toString()
+    value: sym,
+    string: sym.toString()
+  }
+}
+
+Primitive.Label = function(sym) {
+  return {
+    type: PrimitiveType.Label,
+    value: sym,
+    string: sym.toString()
   }
 }
 

@@ -1,0 +1,3 @@
+rand-int: [rand 100 * floor]
+
+rand-int print

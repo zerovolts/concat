@@ -91,6 +91,7 @@ builtins.set('len', Primitive.Function(stack => {
 
 builtins.set('get-key', Primitive.Function(stack => {
   let [obj, key] = stack.pop(2)
+  console.log(obj, key)
   stack.push(obj.get(key))
 }))
 

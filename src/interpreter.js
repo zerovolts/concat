@@ -2,6 +2,7 @@ const Parser = require('./parser')
 const PrimitiveType = require('./primitive-type')
 const Stack = require('./stack')
 const library = require('./library')
+const fs = require('fs')
 
 class Interpreter {
   constructor(options = {}) {
@@ -34,18 +35,26 @@ class Interpreter {
   }
 
   read(token) {
-    if (token.type == PrimitiveType.Symbol) {
+    if (token.type == PrimitiveType.Identifier) {
       token = library.get(token.value)
     }
 
     if (token.type == PrimitiveType.Function) {
-      //let args = this.stack.pop(token.arity)
       token.fn(this.stack)
       return this.stack.length
     } else {
       this.stack.push(token)
       return this.stack.length
     }
+  }
+
+  file(filename) {
+    fs.readFile(filename, 'utf-8', (err, data) => {
+      if (err) throw err;
+      this.setProgram(data.toString().trim())
+      this.run()
+      //console.log(':', evalStr(data))
+    });
   }
 
   repl() {
