@@ -61,14 +61,18 @@ class Interpreter {
     const stdin = process.openStdin()
     process.stdout.write('> ')
     stdin.addListener('data', d => {
-      this.setProgram(d.toString().trim())
-      let result = this.run()
-      if (this.options.showStack) {
-        if (this.options.showTypes) {
-          console.log('::', '[' + result.map(e => e.string + '~' + e.type).join(' ') + ']')
-        } else {
-          console.log('::', '[' + result.map(e => e.string).join(' ') + ']')
+      try {
+        this.setProgram(d.toString().trim())
+        let result = this.run()
+        if (this.options.showStack) {
+          if (this.options.showTypes) {
+            console.log('::', '[' + result.map(e => e.toString() + '~' + e.type).join(', ') + ']')
+          } else {
+            console.log('::', '[' + result.map(e => e.toString()).join(', ') + ']')
+          }
         }
+      } catch (e) {
+        console.log(e)
       }
       process.stdout.write('> ')
     })

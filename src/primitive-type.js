@@ -8,7 +8,8 @@ const PrimitiveType = Object.freeze({
   Symbol: 'symbol',         // :abc
   Label: 'label',           // abc:
   List: 'list',             // [1 2 3]
-  Object: 'object'          // {a: 4 b: 7}
+  Object: 'object',         // {a: 4 b: 7}
+  Semicolon: 'semicolon'
 })
 
 module.exports = PrimitiveType

@@ -5,38 +5,38 @@ const library = require('./library')
 class Parser {
   constructor() {
     // unable to have spaces in strings with this
-    this.splitter = /\s|([\[\]\{\}\.])/
+    this.splitter = /\s|([\[\]\{\}\.;])/
     this.tokenMatchers = [{
         type: 'identifier',
         regex: /^[A-Za-z\-\+\!\?\*\>\<][\w\-\+\!\?\*\>\<]*$/,
-        fn: result => Primitive.Identifier(String(result[0]))
+        fn: result => new Primitive.Identifier(String(result[0]))
       }, {
         type: 'symbol',
         regex: /^\:([A-Za-z\-\+\!\?\*\>\<][\w\-\+\!\?\*\>\<]*)$/,
-        fn: result => Primitive.Symbol(String(result[1]))
+        fn: result => new Primitive.Symbol(String(result[1]))
       },{
         type: 'label',
         regex: /^([A-Za-z\-\+\!\?\*\>\<][\w\-\+\!\?\*\>\<]*)\:$/,
-        fn: result => Primitive.Label(String(result[1]))
+        fn: result => new Primitive.Label(String(result[1]))
       }, {
         type: 'integer',
         regex: /^\d+$/,
-        fn: result => Primitive.Integer(Number(result[0]))
+        fn: result => new Primitive.Integer(Number(result[0]))
       }, {
         type: 'real',
         regex: /^\d+\.\d+$/,
-        fn: result => Primitive.Real(Number(result[0]))
+        fn: result => new Primitive.Real(Number(result[0]))
       }, {
         type: 'ratio',
         regex: /^\d+\/\d+$/,
         fn: result => {
           let [a, b] = result[0].split('/').map(x => Number(x))
-          return Primitive.Ratio(a, b)
+          return new Primitive.Ratio(a, b)
         }
       }, {
         type: 'string',
         regex: /^"(.*)"$/,
-        fn: result => Primitive.String(String(result[1]))
+        fn: result => new Primitive.String(String(result[1]))
       }
     ]
   }
@@ -51,6 +51,7 @@ class Parser {
       if (lexeme == ']') {return {type: 'right-bracket', value: ']'}}
       if (lexeme == '{') {return {type: 'left-brace', value: '{'}}
       if (lexeme == '}') {return {type: 'right-brace', value: '}'}}
+      if (lexeme == ';') {return new Primitive.Semicolon()}
 
       for (let i = 0, n = this.tokenMatchers.length; i < n; i++) {
         let matcher = this.tokenMatchers[i]
@@ -79,7 +80,7 @@ class Parser {
           break
         case 'right-bracket':
           if (type == PrimitiveType.List) {
-            return Primitive.List(nodes)
+            return new Primitive.List(nodes)
           } else {
             throw Error('Mismatched brackets')
           }
